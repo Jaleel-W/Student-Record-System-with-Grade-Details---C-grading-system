@@ -1,133 +1,150 @@
 //Author Jaleel Williamson
-//
-//
-#include <iostream>
 #include "UniversityDatabase.h"
+#include <iostream>
+#include <limits>
+#include <cctype>
 
-// Main Function
-// Main Function
+void clearInputBuffer() {
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
 int main() {
-    UniversityDatabase universityDatabase;
+    UniversityDatabase db;
     int id = 100;
 
     while (true) {
-        std::cout << "Menu Options:" << std::endl;
-        std::cout << "1- Add Student" << std::endl;
-        std::cout << "2- Add Faculty Member" << std::endl;
-        std::cout << "3- Add Grades for a Student" << std::endl;
-        std::cout << "4- Add Courses for a Faculty Member" << std::endl;
-        std::cout << "5- Add Contact Info for a Person" << std::endl;
-        std::cout << "6- Display All People" << std::endl;
-        std::cout << "7- Exit" << std::endl;
+        std::cout << "\nUniversity Database System\n";
+        std::cout << "1. Add Student\n";
+        std::cout << "2. Add Faculty\n";
+        std::cout << "3. Add Student Grade\n";
+        std::cout << "4. Add Faculty Course\n";
+        std::cout << "5. Add Contact Info\n";
+        std::cout << "6. Display All Records\n";
+        std::cout << "7. Exit\n";
+        std::cout << "Enter choice: ";
 
         int choice;
-        std::cout << "Enter your choice: ";
-        std::cin >> choice;
+        if (!(std::cin >> choice)) {
+            clearInputBuffer();
+            std::cout << "Invalid input. Please enter a number.\n";
+            continue;
+        }
 
         switch (choice) {
             case 1: {
-                // Add Student
-                std::string firstName, lastName;
-                std::cout << "Enter student first name: ";
-                std::cin >> firstName;
-                std::cout << "Enter student last name: ";
-                std::cin >> lastName;
-
-                Student* student = new Student(firstName, lastName, id++);
-                universityDatabase.addPerson(student);
+                std::string last, first;
+                std::cout << "Enter last name: ";
+                std::cin >> last;
+                std::cout << "Enter first name: ";
+                std::cin >> first;
+                db.addPerson(new Student(last, first, id++));
+                std::cout << "Student added successfully.\n";
                 break;
             }
+            
             case 2: {
-                // Add Faculty Member
-                std::string firstName, lastName, department;
-                std::cout << "Enter faculty first name: ";
-                std::cin >> firstName;
-                std::cout << "Enter faculty last name: ";
-                std::cin >> lastName;
-                std::cout << "Enter faculty department: ";
-                std::cin >> department;
-
-                Faculty* faculty = new Faculty(firstName, lastName, id++, department);
-                universityDatabase.addPerson(faculty);
+                std::string last, first, dept;
+                std::cout << "Enter last name: ";
+                std::cin >> last;
+                std::cout << "Enter first name: ";
+                std::cin >> first;
+                std::cout << "Enter department: ";
+                std::cin >> dept;
+                db.addPerson(new Faculty(last, first, id++, dept));
+                std::cout << "Faculty added successfully.\n";
                 break;
             }
+            
             case 3: {
-                // Add Grades for a Student
-                int studentId;
+                int sid;
                 std::cout << "Enter student ID: ";
-                std::cin >> studentId;
-
-                Student* student = universityDatabase.findStudentById(studentId);
-                if (student) {
+                if (!(std::cin >> sid)) {
+                    clearInputBuffer();
+                    std::cout << "Invalid ID format.\n";
+                    break;
+                }
+                
+                if (Student* s = db.findStudentById(sid)) {
                     std::string course;
                     char grade;
-
-                    std::cout << "Enter course for the student: ";
+                    std::cout << "Enter course name: ";
                     std::cin >> course;
-                    std::cout << "Enter grade for the course: ";
+                    std::cout << "Enter grade (A-F): ";
                     std::cin >> grade;
-
-                    student->addGrade(course, grade);
+                    
+                    if (!std::isalpha(grade)) {
+                        std::cout << "Invalid grade format.\n";
+                    } else {
+                        s->addGrade(course, grade);
+                        std::cout << "Grade added successfully.\n";
+                    }
                 } else {
-                    std::cout << "Student not found." << std::endl;
+                    std::cout << "Student not found.\n";
                 }
                 break;
             }
+            
             case 4: {
-                // Add Courses for a Faculty Member
-                int facultyId;
+                int fid;
                 std::cout << "Enter faculty ID: ";
-                std::cin >> facultyId;
-
-                Faculty* faculty = universityDatabase.findFacultyById(facultyId);
-                if (faculty) {
-                    std::string courseId, description;
-
-                    std::cout << "Enter course ID for the faculty: ";
-                    std::cin >> courseId;
+                if (!(std::cin >> fid)) {
+                    clearInputBuffer();
+                    std::cout << "Invalid ID format.\n";
+                    break;
+                }
+                
+                if (Faculty* f = db.findFacultyById(fid)) {
+                    std::string course, desc;
+                    std::cout << "Enter course name: ";
+                    std::cin >> course;
                     std::cout << "Enter course description: ";
-                    std::cin >> description;
-
-                    faculty->addCourse(courseId, description);
+                    clearInputBuffer();
+                    std::getline(std::cin, desc);
+                    f->addCourse(course, desc);
+                    std::cout << "Course added successfully.\n";
                 } else {
-                    std::cout << "Faculty member not found." << std::endl;
+                    std::cout << "Faculty not found.\n";
                 }
                 break;
             }
+            
             case 5: {
-                // Add Contact Info for a Person
-                int personId;
+                int pid;
                 std::cout << "Enter person ID: ";
-                std::cin >> personId;
-
-                Person* person = universityDatabase.findPersonById(personId);
-                if (person) {
-                    std::string key, value;
-                    std::cout << "Enter contact information key: ";
-                    std::cin >> key;
-                    std::cout << "Enter contact information value: ";
+                if (!(std::cin >> pid)) {
+                    clearInputBuffer();
+                    std::cout << "Invalid ID format.\n";
+                    break;
+                }
+                
+                if (Person* p = db.findPersonById(pid)) {
+                    std::string type, value;
+                    std::cout << "Contact type (Email/Phone): ";
+                    std::cin >> type;
+                    std::cout << "Contact value: ";
                     std::cin >> value;
-                    person->addContactInfo(key, value);
+                    p->addContactInfo(type, value);
+                    std::cout << "Contact added successfully.\n";
                 } else {
-                    std::cout << "Person not found." << std::endl;
+                    std::cout << "Person not found.\n";
                 }
                 break;
             }
+            
             case 6: {
-                // Display All People
-                universityDatabase.displayAllPeopleInfo();
+                db.displayAllPeopleInfo();
                 break;
             }
+            
             case 7: {
-                // Exit
                 return 0;
             }
+            
             default: {
-                std::cout << "Invalid choice. Please try again." << std::endl;
-                break;
+                std::cout << "Invalid choice. Try again.\n";
+                clearInputBuffer();
             }
         }
     }
-
-    return 0;
 }
