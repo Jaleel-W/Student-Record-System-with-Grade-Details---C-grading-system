@@ -1,16 +1,11 @@
 //Author Jaleel Williamson
-//
-//
-#include <iostream>
-#include "Person.h"
-#include "Student.h"
-#include "Faculty.h"
-#include "MyVector.h"
-
 #ifndef UNIVERSITY_DATABASE_H
 #define UNIVERSITY_DATABASE_H
 
-// UniversityDatabase Class
+#include "Person.h"
+#include "Student.h"
+#include "Faculty.h"
+
 class UniversityDatabase {
 private:
     MyVector<Person*> people;
@@ -18,7 +13,7 @@ private:
 public:
     ~UniversityDatabase() {
         for (int i = 0; i < people.getSize(); ++i) {
-            delete people.retrieveInfoAtIndex(i);
+            delete people[i];
         }
     }
 
@@ -28,29 +23,27 @@ public:
 
     Person* findPersonById(int id) const {
         for (int i = 0; i < people.getSize(); ++i) {
-            if (people.retrieveInfoAtIndex(i)->getId() == id) {
-                return people.retrieveInfoAtIndex(i);
+            if (people[i]->getId() == id) {
+                return people[i];
             }
         }
         return nullptr;
     }
 
     Student* findStudentById(int id) const {
-        Person* person = findPersonById(id);
-        return dynamic_cast<Student*>(person);
+        return dynamic_cast<Student*>(findPersonById(id));
     }
 
     Faculty* findFacultyById(int id) const {
-        Person* person = findPersonById(id);
-        return dynamic_cast<Faculty*>(person);
+        return dynamic_cast<Faculty*>(findPersonById(id));
     }
 
     void displayAllPeopleInfo() const {
         for (int i = 0; i < people.getSize(); ++i) {
-            people.retrieveInfoAtIndex(i)->displayInfo();
-            std::cout << std::endl;
+            people[i]->displayInfo();
+            std::cout << "------------------------\n";
         }
     }
 };
 
-#endif // UNIVERSITY_DATABASE_H
+#endif
