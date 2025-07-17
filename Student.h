@@ -1,51 +1,58 @@
 //Author Jaleel Williamson
-//
-//
-#include <iostream>
-#include "Pair.h"
-#include "Person.h"
-
-
 #ifndef STUDENT_H
 #define STUDENT_H
 
-// Student Class
+#include "Person.h"
+#include <cctype>
+
 class Student : public Person {
 private:
     MyVector<Pair<std::string, char>> grades;
 
-public:
-    Student(const std::string& first, const std::string& last, int _id)
-        : Person(first, last, _id) {}
-
-    ~Student() {}
-
-    void displayInfo() const override {
-        std::cout << "Student: " << getFullName() << " (ID: " << getId() << ")" << std::endl;
-        displayContactInfo();
-        std::cout << "Average Grade: " << getAverageGrade() << std::endl;
+    double convertGrade(char g) const {
+        switch (std::toupper(g)) {
+            case 'A': return 4.0;
+            case 'B': return 3.0;
+            case 'C': return 2.0;
+            case 'D': return 1.0;
+            default: return 0.0;
+        }
     }
 
-    std::string getRole() const override {
-        return "Student";
+public:
+    Student(const std::string& last, const std::string& first, int _id)
+        : Person(last, first, _id) {}
+
+    void displayInfo() const override {
+        std::cout << "Student: " << getFullName() << " (ID: " << id << ")\n";
+        displayContactInfo();
+        if (grades.getSize() > 0) {
+            std::cout << "  Grades:\n";
+            for (int i = 0; i < grades.getSize(); ++i) {
+                const auto& g = grades[i];
+                std::cout << "    " << g.first << ": " << g.second << "\n";
+            }
+            std::cout << "  Average Grade: " << getAverageGrade() << "\n";
+        }
+    }
+
+    std::string getRole() const override { 
+        return "Student"; 
     }
 
     void addGrade(const std::string& course, char grade) {
-        grades.push_back(Pair<std::string, char>(course, grade));
+        grades.push_back({course, static_cast<char>(std::toupper(grade))});
     }
 
     double getAverageGrade() const {
-        if (grades.getSize() == 0) {
-            return 0.0;
-        }
-
-        double totalGrade = 0.0;
+        if (grades.getSize() == 0) return 0.0;
+        
+        double total = 0.0;
         for (int i = 0; i < grades.getSize(); ++i) {
-            totalGrade += grades.retrieveInfoAtIndex(i).second;
+            total += convertGrade(grades[i].second);
         }
-
-        return totalGrade / grades.getSize();
+        return total / grades.getSize();
     }
 };
 
-#endif //STUDENT_H
+#endif
