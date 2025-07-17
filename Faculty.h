@@ -1,48 +1,38 @@
 //Author Jaleel Williamson
-//
-//
-#include <iostream>
-#include "Pair.h"
-#include "Person.h"
-#include "MyVector.h"
-
 #ifndef FACULTY_H
 #define FACULTY_H
 
-// Faculty Class
+#include "Person.h"
+
 class Faculty : public Person {
 private:
-    MyVector<Pair<std::string, std::string>> courseInfo;
+    MyVector<Pair<std::string, std::string>> courses;
     std::string department;
 
 public:
-    Faculty(const std::string& first, const std::string& last, int _id, const std::string& dept)
-        : Person(first, last, _id), department(dept) {}
-
-    ~Faculty() {}
+    Faculty(const std::string& last, const std::string& first, int _id, const std::string& dept)
+        : Person(last, first, _id), department(dept) {}
 
     void displayInfo() const override {
-        std::cout << "Faculty: " << getFullName() << " (ID: " << getId() << ")" << std::endl;
-        std::cout << "Department: " << department << std::endl;
+        std::cout << "Faculty: " << getFullName() << " (ID: " << id << ")\n";
+        std::cout << "  Department: " << department << "\n";
         displayContactInfo();
-        displayCourseInfo();
-    }
-
-    std::string getRole() const override {
-        return "Faculty";
-    }
-
-    void addCourse(const std::string& courseId, const std::string& description) {
-        courseInfo.push_back(Pair<std::string, std::string>(courseId, description));
-    }
-
-    void displayCourseInfo() const {
-        std::cout << "Courses: " << std::endl;
-        for (int i = 0; i < courseInfo.getSize(); ++i) {
-            Pair<std::string, std::string> info = courseInfo.retrieveInfoAtIndex(i);
-            std::cout << info.first << ": " << info.second << std::endl;
+        if (courses.getSize() > 0) {
+            std::cout << "  Courses:\n";
+            for (int i = 0; i < courses.getSize(); ++i) {
+                const auto& c = courses[i];
+                std::cout << "    " << c.first << ": " << c.second << "\n";
+            }
         }
+    }
+
+    std::string getRole() const override { 
+        return "Faculty"; 
+    }
+
+    void addCourse(const std::string& course, const std::string& description) {
+        courses.push_back({course, description});
     }
 };
 
-#endif // FACULTY_H
+#endif
